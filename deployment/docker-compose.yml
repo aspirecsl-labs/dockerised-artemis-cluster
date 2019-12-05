@@ -1,0 +1,25 @@
+version: "3.5"
+services:
+  artemis:
+    image: localhost:5000/artemis-cluster:1.0-SNAPSHOT
+    networks:
+      - artemis-net
+    volumes:
+      - /tmp/jgroups:/var/jgroups
+      - /tmp/artemis:/var/artemis
+    deploy:
+      replicas: 3
+      update_config:
+        failure_action: continue
+        order: start-first
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
+
+networks:
+  artemis-net:
+    external: true
+    name: "host"
+
