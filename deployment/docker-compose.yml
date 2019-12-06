@@ -1,9 +1,7 @@
 version: "3.5"
 services:
-  artemis:
+  messenger:
     image: localhost:5000/artemis-cluster:1.0-SNAPSHOT
-    networks:
-      - artemis-net
     volumes:
       - /tmp/jgroups:/var/jgroups
       - /tmp/artemis:/var/artemis
@@ -17,9 +15,4 @@ services:
           memory: 512M
         reservations:
           memory: 128M
-
-networks:
-  artemis-net:
-    external: true
-    name: "host"
 

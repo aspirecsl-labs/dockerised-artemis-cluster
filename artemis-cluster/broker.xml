@@ -126,12 +126,12 @@ under the License.
 
         <!-- Connectors -->
         <connectors>
-            <connector name="netty-connector">tcp://__HOST__:61616</connector>
+            <connector name="netty-connector">tcp://localhost:61616</connector>
         </connectors>
 
         <!-- Acceptors -->
         <acceptors>
-            <acceptor name="netty-acceptor">tcp://__HOST__:61616</acceptor>
+            <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>
         </acceptors>
 
         <!-- Clustering configuration -->

@@ -11,22 +11,12 @@ ENV https_proxy http://$PROXY_ADDRESS/
 ENV SHA512_VAL=9e7ad63fad2e2bcfc727d68a49df82fb71820dc785c04f737836c9f831a9a2aa85d4f7b4469e2c27373da0c0b6b1a58b3adee033813e5e9787badac1b0ceade7
 ENV ARTEMIS_DOWNLOAD_LINK 'https://www.apache.org/dyn/closer.cgi?filename=activemq/activemq-artemis/2.10.1/apache-artemis-2.10.1-bin.tar.gz&action=download'
 
-ENV ARTEMIS_USER artemisuser
-ENV ARTEMIS_PASSWORD artemispwd
-ENV ANONYMOUS_LOGIN false
+ENV ARTEMIS_USER artemis
+ENV ARTEMIS_PASSWORD artemis
 
-ENV CREATE_ARGUMENTS --silent \
-                     --name message-cluster \
-                     --host $(hostname -f) \
-                     --user ${ARTEMIS_USER} \
-                     --password ${ARTEMIS_PASSWORD} \
-                     --require-login \
-                     --aio \
-                     --no-web \
-                     --no-amqp-acceptor \
-                     --no-hornetq-acceptor \
-                     --no-mqtt-acceptor \
-                     --no-stomp-acceptor
+COPY broker.xml /
+COPY entrypoint.sh /
+COPY jgroups-file_ping.xml /
 
 RUN groupadd -g 1000 -r artemis && useradd -r -u 1000 -g artemis artemis && \
     apt-get update && \
@@ -37,16 +27,24 @@ RUN groupadd -g 1000 -r artemis && useradd -r -u 1000 -g artemis artemis && \
         echo "unexpected sha512 checksum on the downloaded tarball! exiting."  && \
         exit 1; \
     else \
-        echo "configuring artemis instance..." && \
-        mkdir -p /var/jgroups/message-cluster /var/artemis/message-cluster && \
+        mkdir -p /var/jgroups /usr/artemis /var/artemis /tmp/artemis && \
         tar --exclude=*/web/* --exclude=*/examples/* -x -v -f /tmp/artemis.tgz && \
         mv apache-artemis-* artemis && \
-        /artemis/bin/artemis create ${CREATE_ARGUMENTS} /var/artemis; \
+        chmod ugo+x /entrypoint.sh && \
+        chown -R artemis:artemis \
+                     /artemis \
+                     /broker.xml \
+                     /var/jgroups \
+                     /usr/artemis \
+                     /var/artemis \
+                     /tmp/artemis \
+                     /entrypoint.sh \
+                     /jgroups-file_ping.xml; \
     fi; \
     rm -rf /var/lib/apt/lists/* /tmp/artemis.tgz
 
-USER artemis
-
+VOLUME ["/var/jgroups"]
+VOLUME ["/var/artemis"]
 EXPOSE \
 # Web Server
     8161 \
@@ -55,23 +53,6 @@ EXPOSE \
 # Port for CORE,MQTT,AMQP,HORNETQ,STOMP,OPENWIRE
     61616
 
-USER root
-
-COPY ./entrypoint.sh /
-COPY ./broker.xml /var/artemis/etc
-COPY jgroups-file_ping.xml /var/artemis/etc
-
-RUN chmod ugo+x /entrypoint.sh && \
-    chown -R artemis.artemis \
-             /artemis \
-             /entrypoint.sh \
-             /var/jgroups \
-             /var/artemis
-
 USER artemis
-
-VOLUME ["/var/jgroups", "/var/artemis"]
-WORKDIR /var/artemis
-
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["run"]
