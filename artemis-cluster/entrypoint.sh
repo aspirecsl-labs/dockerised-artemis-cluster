@@ -3,7 +3,6 @@ set -x
 
 ARTEMIS_HOME=/artemis
 ARTEMIS_INSTANCE=/usr/artemis/instance
-export PATH=$PATH:$ARTEMIS_HOME/bin:$ARTEMIS_INSTANCE/bin
 
 # only create an instance if one doesn't exist already
 if [ ! -d $ARTEMIS_INSTANCE ]
@@ -28,6 +27,11 @@ then
   ln -s /tmp/artemis /usr/artemis/tmp
   cp -f /broker.xml $ARTEMIS_INSTANCE/etc
   cp -f /jgroups-file_ping.xml $ARTEMIS_INSTANCE/etc
+
+  # fill the host info in the broker.xml
+  BROKER=$ARTEMIS_INSTANCE/etc/broker.xml
+  BROKER_SED_EXPR="s/__host__/$(hostname -f)/g"
+  sed -i -e "${BROKER_SED_EXPR}" "${BROKER}"
 fi
 
 cd $ARTEMIS_INSTANCE || exit 1

@@ -21,7 +21,7 @@ COPY jgroups-file_ping.xml /
 RUN groupadd -g 1000 -r artemis && useradd -r -u 1000 -g artemis artemis && \
     apt-get update && \
     apt-get install -y --no-install-recommends libaio1 wget && \
-    wget --no-verbose --output-document=/tmp/artemis.tgz $ARTEMIS_DOWNLOAD_LINK && \
+    wget --output-document=/tmp/artemis.tgz $ARTEMIS_DOWNLOAD_LINK && \
     if [ "$SHA512_VAL" != "$(sha512sum /tmp/artemis.tgz | awk '{print($1)}')" ];\
     then \
         echo "unexpected sha512 checksum on the downloaded tarball! exiting."  && \

@@ -26,7 +26,7 @@ under the License.
     <core xmlns="urn:activemq:core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="urn:activemq:core ">
 
-        <name>hello-artemis</name>
+        <name>messenger</name>
 
 
         <persistence-enabled>true</persistence-enabled>
@@ -126,12 +126,14 @@ under the License.
 
         <!-- Connectors -->
         <connectors>
-            <connector name="netty-connector">tcp://localhost:61616</connector>
+            <!-- __host__ is a place holder for the host name that will be filled when container is started -->
+            <connector name="netty-connector">tcp://__host__:61616</connector>
         </connectors>
 
         <!-- Acceptors -->
         <acceptors>
-            <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>
+            <!-- __host__ is a place holder for the host name that will be filled when container is started -->
+            <acceptor name="netty-acceptor">tcp://__host__:61616</acceptor>
         </acceptors>
 
         <!-- Clustering configuration -->
