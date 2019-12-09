@@ -5,6 +5,11 @@ services:
     volumes:
       - /tmp/jgroups:/var/jgroups
       - /tmp/artemis:/var/artemis
+    ports:
+      # Web Server
+      - 58161:8161
+      # Messages
+      - 61616:61616
     deploy:
       replicas: 3
       update_config:

@@ -1,5 +1,6 @@
 package com.demo.artemis;
 
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.annotation.PreDestroy;
@@ -25,10 +26,12 @@ import static java.time.LocalDateTime.now;
 @SpringBootApplication
 public class ArtemisProducerApplication implements CommandLineRunner {
 
+    private final String id;
     private final Queue queue;
     private final Connection connection;
 
     public ArtemisProducerApplication() throws JMSException {
+        id = UUID.randomUUID().toString();
         queue = ActiveMQJMSClient.createQueue("example");
         final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
         this.connection = connectionFactory.createConnection();
@@ -47,7 +50,7 @@ public class ArtemisProducerApplication implements CommandLineRunner {
         while (true) {
             final String groupId = "" + ThreadLocalRandom.current().nextInt(3);
             final TextMessage message =
-                    session.createTextMessage(String.format("Message with group id [%s] generated at: [%s]", groupId, now()));
+                    session.createTextMessage(String.format("[%s] - message with group id [%s] generated at: [%s]", id, groupId, now()));
             message.setStringProperty("JMSXGroupID", groupId);
             producer.send(message);
             System.out.println("Sent message: " + message.getText() + " to node 0");

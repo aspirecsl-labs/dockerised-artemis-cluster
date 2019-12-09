@@ -28,7 +28,7 @@ RUN groupadd -g 1000 -r artemis && useradd -r -u 1000 -g artemis artemis && \
         exit 1; \
     else \
         mkdir -p /var/jgroups /usr/artemis /var/artemis /tmp/artemis && \
-        tar --exclude=*/web/* --exclude=*/examples/* -x -v -f /tmp/artemis.tgz && \
+        tar --exclude=*/examples/* -x -v -f /tmp/artemis.tgz && \
         mv apache-artemis-* artemis && \
         chmod ugo+x /entrypoint.sh && \
         chown -R artemis:artemis \
@@ -48,9 +48,7 @@ VOLUME ["/var/artemis"]
 EXPOSE \
 # Web Server
     8161 \
-# JMX Exporter
-    9404 \
-# Port for CORE,MQTT,AMQP,HORNETQ,STOMP,OPENWIRE
+# Messages
     61616
 
 USER artemis

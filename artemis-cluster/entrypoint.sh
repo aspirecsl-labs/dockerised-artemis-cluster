@@ -10,10 +10,10 @@ then
   echo "creating artemis instance..."
   $ARTEMIS_HOME/bin/artemis create  \
                               --silent \
-                              --no-web \
                               --require-login \
                               --relax-jolokia \
                               --name artemis \
+                              --no-autocreate \
                               --no-amqp-acceptor \
                               --no-mqtt-acceptor \
                               --no-stomp-acceptor \
