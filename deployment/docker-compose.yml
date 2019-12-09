@@ -2,9 +2,11 @@ version: "3.5"
 services:
   messenger:
     image: localhost:5000/artemis-cluster:1.0-SNAPSHOT
+    environment: 
+      - _JAVA_OPTIONS=-Dhttp.nonProxyHosts=localhost
     volumes:
-      - /tmp/jgroups:/var/jgroups
-      - /tmp/artemis:/var/artemis
+      - /var/artemis/data:/var/artemis
+      - /var/artemis/jgroups:/var/jgroups
     ports:
       # Web Server
       - 58161:8161

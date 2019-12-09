@@ -126,18 +126,33 @@ under the License.
 
         <!-- Connectors -->
         <connectors>
-            <!-- __host__ is a place holder for the host name that will be filled when container is started -->
+            <!-- __host__ is a place holder for the host name that will be replaced with the container id -->
             <connector name="netty-connector">tcp://__host__:61616</connector>
         </connectors>
 
         <!-- Acceptors -->
         <acceptors>
-            <!-- __host__ is a place holder for the host name that will be filled when container is started -->
+            <!-- __host__ is a place holder for the host name that will be replaced with the container id -->
             <acceptor name="netty-acceptor">tcp://__host__:61616</acceptor>
         </acceptors>
 
-        <!-- Clustering configuration -->
+        <security-settings>
+            <security-setting match="#">
+                <permission type="createNonDurableQueue" roles="amq"/>
+                <permission type="deleteNonDurableQueue" roles="amq"/>
+                <permission type="createDurableQueue" roles="amq"/>
+                <permission type="deleteDurableQueue" roles="amq"/>
+                <permission type="createAddress" roles="amq"/>
+                <permission type="deleteAddress" roles="amq"/>
+                <permission type="consume" roles="amq"/>
+                <permission type="browse" roles="amq"/>
+                <permission type="send" roles="amq"/>
+                <!-- we need this otherwise ./artemis data imp wouldn't work -->
+                <permission type="manage" roles="amq"/>
+            </security-setting>
+        </security-settings>
 
+        <!-- Clustering configuration -->
         <broadcast-groups>
             <broadcast-group name="my-broadcast-group">
                 <broadcast-period>5000</broadcast-period>
