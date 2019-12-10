@@ -30,12 +30,10 @@
                             <goal>build</goal>
                             <goal>push</goal>
                         </goals>
-                        <configuration>
-                            <tag>${project.version}</tag>
-                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
+                    <tag>${project.version}</tag>
                     <pullNewerImage>false</pullNewerImage>
                     <repository>${docker.repository}/${project.artifactId}</repository>
                 </configuration>

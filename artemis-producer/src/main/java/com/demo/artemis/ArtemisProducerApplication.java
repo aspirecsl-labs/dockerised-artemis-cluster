@@ -21,6 +21,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
+import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
 
 @Configuration
@@ -28,15 +29,17 @@ import static java.time.LocalDateTime.now;
 public class ArtemisProducerApplication implements CommandLineRunner {
 
     private final String id;
+    private Session session;
     private final Queue queue;
-    private final Connection connection;
+    private MessageProducer producer;
+    private final ConnectionFactory connectionFactory;
 
     public ArtemisProducerApplication() throws JMSException {
         id = UUID.randomUUID().toString();
         queue = ActiveMQJMSClient.createQueue("example");
-        final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616", "artemis", "artemis");
-        this.connection = connectionFactory.createConnection();
-        ShutdownHook.connection = this.connection;
+        connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616", "artemis", "artemis");
+        session = getSession();
+        producer = session.createProducer(queue);
     }
 
     public static void main(String[] args) {
@@ -45,36 +48,51 @@ public class ArtemisProducerApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        try {
-            final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            connection.start();
-            final MessageProducer producer = session.createProducer(queue);
-            while (true) {
+        while (true) {
+            try {
                 final int groupId = ThreadLocalRandom.current().nextInt(5);
                 final TextMessage message =
-                        session.createTextMessage(
-                                String.format("[%s] - message with group id [%s] generated at: [%s]", id, groupId, now()));
+                        session.createTextMessage(format("[%s] - group [%s] timestamp: [%s]", id, groupId, now()));
                 message.setStringProperty("JMSXGroupID", "Group-" + groupId);
                 producer.send(message);
-                System.out.println("Sent message: " + message.getText() + " to node 0");
-                TimeUnit.SECONDS.sleep(1);
+                System.out.println("Sent message: " + message.getText());
+                TimeUnit.MILLISECONDS.sleep(100);
+            } catch (JMSException jmsEx) {
+                if (!ShutdownHook.shuttingDown) {
+                    System.err.println("|---JMS ERROR---|");
+                    jmsEx.printStackTrace();
+                    try {
+                        System.out.println("Reconnecting...");
+                        session = getSession();
+                        producer = session.createProducer(queue);
+                    } catch (JMSException je2) {
+                        je2.printStackTrace();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }catch (JMSException jmsEx){
-            System.err.println("|---JMS ERROR---|");
-            jmsEx.printStackTrace();
-        }catch (Exception e){
-            e.printStackTrace();
         }
+    }
+
+    private Session getSession() throws JMSException {
+        final Connection connection = connectionFactory.createConnection();
+        final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+        connection.start();
+        ShutdownHook.connection = connection;
+        return session;
     }
 
     @Component
     public static class ShutdownHook {
 
         private static Connection connection;
+        private static volatile boolean shuttingDown = false;
 
         @PreDestroy
         public void destroy() throws JMSException {
             connection.close();
+            shuttingDown = true;
             System.out.println("shutting down system...");
         }
     }

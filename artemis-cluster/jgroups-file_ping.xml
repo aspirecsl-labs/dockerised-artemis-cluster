@@ -40,6 +40,9 @@
          thread_pool.queue_max_size="10000"
          thread_pool.rejection_policy="discard"
 
+         logical_addr_cache_expiration="20000"
+         logical_addr_cache_reaper_interval="10000"
+
          oob_thread_pool.enabled="true"
          oob_thread_pool.min_threads="1"
          oob_thread_pool.max_threads="8"
@@ -54,7 +57,7 @@
              max_interval="30000"/>
     <FD_SOCK/>
     <FD timeout="3000" max_tries="3" />
-    <VERIFY_SUSPECT timeout="1500"  />
+    <VERIFY_SUSPECT timeout="1000"  />
     <BARRIER />
     <pbcast.NAKACK2 use_mcast_xmit="false"
                     discard_delivered_msgs="true"/>

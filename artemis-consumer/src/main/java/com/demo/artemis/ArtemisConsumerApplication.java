@@ -24,13 +24,14 @@ import org.springframework.stereotype.Component;
 public class ArtemisConsumerApplication implements CommandLineRunner {
 
     private final Queue queue;
-    private final Connection connection;
+    private MessageConsumer consumer;
+    private final ConnectionFactory connectionFactory;
 
     public ArtemisConsumerApplication() throws JMSException {
         queue = ActiveMQJMSClient.createQueue("example");
-        final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616", "artemis", "artemis");
-        this.connection = connectionFactory.createConnection();
-        ShutdownHook.connection = this.connection;
+        connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616", "artemis", "artemis");
+        final Session session = getSession();
+        consumer = session.createConsumer(queue);
     }
 
     public static void main(String[] args) {
@@ -39,34 +40,49 @@ public class ArtemisConsumerApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        try {
-            final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            connection.start();
-            final MessageConsumer consumer = session.createConsumer(queue);
-            while (true) {
+        while (true) {
+            try {
                 final TextMessage message = (TextMessage) consumer.receive(5000);
                 if (message != null) {
-                    System.out.println(String.format("Message received: [%s]", message.getText()));
+                    System.out.println("Received message: " + message.getText());
                     message.acknowledge();
                 }
-                TimeUnit.SECONDS.sleep(1);
+                TimeUnit.MILLISECONDS.sleep(100);
+            } catch (JMSException je1) {
+                if (!ShutdownHook.shuttingDown) {
+                    System.err.println("|---JMS ERROR---|");
+                    je1.printStackTrace();
+                    try {
+                        System.out.println("Reconnecting...");
+                        consumer = getSession().createConsumer(queue);
+                    } catch (JMSException je2) {
+                        je2.printStackTrace();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (JMSException jmsEx) {
-            System.err.println("|---JMS ERROR---|");
-            jmsEx.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+    }
+
+    private Session getSession() throws JMSException {
+        final Connection connection = connectionFactory.createConnection();
+        final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+        connection.start();
+        ShutdownHook.connection = connection;
+        return session;
     }
 
     @Component
     public static class ShutdownHook {
 
         private static Connection connection;
+        private static volatile boolean shuttingDown = false;
 
         @PreDestroy
         public void destroy() throws JMSException {
             connection.close();
+            shuttingDown = true;
             System.out.println("shutting down system...");
         }
     }
