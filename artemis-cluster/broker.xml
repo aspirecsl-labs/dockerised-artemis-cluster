@@ -133,7 +133,7 @@ under the License.
         <!-- Acceptors -->
         <acceptors>
             <!-- __host__ is a place holder for the host name that will be replaced with the container id -->
-            <acceptor name="netty-acceptor">tcp://{HOST}:61616</acceptor>
+            <acceptor name="netty-acceptor">tcp://0.0.0.0:61616?protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE</acceptor>
         </acceptors>
 
         <security-settings>

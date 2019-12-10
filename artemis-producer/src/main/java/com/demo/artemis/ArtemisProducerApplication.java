@@ -44,18 +44,26 @@ public class ArtemisProducerApplication implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
-        final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        connection.start();
-        final MessageProducer producer = session.createProducer(queue);
-        while (true) {
-            final int groupId = ThreadLocalRandom.current().nextInt(5);
-            final TextMessage message =
-                    session.createTextMessage(
-                            String.format("[%s] - message with group id [%s] generated at: [%s]", id, groupId, now()));
-            message.setStringProperty("JMSXGroupID", "Group-" + groupId);
-            producer.send(message);
-            System.out.println("Sent message: " + message.getText() + " to node 0");
+    public void run(String... args) {
+        try {
+            final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            connection.start();
+            final MessageProducer producer = session.createProducer(queue);
+            while (true) {
+                final int groupId = ThreadLocalRandom.current().nextInt(5);
+                final TextMessage message =
+                        session.createTextMessage(
+                                String.format("[%s] - message with group id [%s] generated at: [%s]", id, groupId, now()));
+                message.setStringProperty("JMSXGroupID", "Group-" + groupId);
+                producer.send(message);
+                System.out.println("Sent message: " + message.getText() + " to node 0");
+                TimeUnit.SECONDS.sleep(1);
+            }
+        }catch (JMSException jmsEx){
+            System.err.println("|---JMS ERROR---|");
+            jmsEx.printStackTrace();
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 

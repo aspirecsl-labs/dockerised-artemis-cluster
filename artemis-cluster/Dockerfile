@@ -23,8 +23,8 @@ RUN groupadd -g 1000 -r artemis && useradd -r -u 1000 -g artemis artemis && \
     ############################################################
     ###          N/W debug tools for DEV phase ONLY          ###
     #----------------------------------------------------------#
-    # apt-get install -y --no-install-recommends iputils-ping \#
-    #                       net-tools inetutils-traceroute && \#
+     apt-get install -y --no-install-recommends \
+     telnet net-tools iputils-ping inetutils-traceroute && \
     ############################################################
     apt-get install -y --no-install-recommends libaio1 wget && \
     wget --output-document=/tmp/artemis.tgz $ARTEMIS_DOWNLOAD_LINK && \
