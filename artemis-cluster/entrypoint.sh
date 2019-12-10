@@ -36,7 +36,7 @@ then
 
   # fill the host info in the broker.xml
   BROKER=$ARTEMIS_INSTANCE/etc/broker.xml
-  BROKER_SED_EXPR="s/__host__/$(hostname -f)/g"
+  BROKER_SED_EXPR="s/{HOST}/$(hostname -f)/g"
   sed -i -e "${BROKER_SED_EXPR}" "${BROKER}"
 fi
 

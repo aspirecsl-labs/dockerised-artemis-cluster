@@ -20,6 +20,12 @@ COPY artemis-users.properties /
 
 RUN groupadd -g 1000 -r artemis && useradd -r -u 1000 -g artemis artemis && \
     apt-get update && \
+    ############################################################
+    ###          N/W debug tools for DEV phase ONLY          ###
+    #----------------------------------------------------------#
+    # apt-get install -y --no-install-recommends iputils-ping \#
+    #                       net-tools inetutils-traceroute && \#
+    ############################################################
     apt-get install -y --no-install-recommends libaio1 wget && \
     wget --output-document=/tmp/artemis.tgz $ARTEMIS_DOWNLOAD_LINK && \
     if [ "$SHA512_VAL" != "$(sha512sum /tmp/artemis.tgz | awk '{print($1)}')" ];\

@@ -34,7 +34,7 @@ public class ArtemisProducerApplication implements CommandLineRunner {
     public ArtemisProducerApplication() throws JMSException {
         id = UUID.randomUUID().toString();
         queue = ActiveMQJMSClient.createQueue("example");
-        final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://127.0.0.1:61616", "artemis", "artemis");
+        final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616", "artemis", "artemis");
         this.connection = connectionFactory.createConnection();
         ShutdownHook.connection = this.connection;
     }

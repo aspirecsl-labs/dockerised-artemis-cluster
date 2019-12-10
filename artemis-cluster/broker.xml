@@ -127,13 +127,13 @@ under the License.
         <!-- Connectors -->
         <connectors>
             <!-- __host__ is a place holder for the host name that will be replaced with the container id -->
-            <connector name="netty-connector">tcp://__host__:61616</connector>
+            <connector name="netty-connector">tcp://{HOST}:61616</connector>
         </connectors>
 
         <!-- Acceptors -->
         <acceptors>
             <!-- __host__ is a place holder for the host name that will be replaced with the container id -->
-            <acceptor name="netty-acceptor">tcp://__host__:61616</acceptor>
+            <acceptor name="netty-acceptor">tcp://{HOST}:61616</acceptor>
         </acceptors>
 
         <security-settings>
