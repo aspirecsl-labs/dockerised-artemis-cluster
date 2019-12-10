@@ -25,11 +25,9 @@ public class ArtemisConsumerApplication implements CommandLineRunner {
 
     private final Queue queue;
     private MessageConsumer consumer;
-    private final ConnectionFactory connectionFactory;
 
     public ArtemisConsumerApplication() throws JMSException {
         queue = ActiveMQJMSClient.createQueue("example");
-        connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616", "artemis", "artemis");
         final Session session = getSession();
         consumer = session.createConsumer(queue);
     }
@@ -40,14 +38,14 @@ public class ArtemisConsumerApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        while (true) {
+        while (!ShutdownHook.shuttingDown) {
             try {
                 final TextMessage message = (TextMessage) consumer.receive(5000);
                 if (message != null) {
                     System.out.println("Received message: " + message.getText());
                     message.acknowledge();
                 }
-                TimeUnit.MILLISECONDS.sleep(100);
+                TimeUnit.MILLISECONDS.sleep(500);
             } catch (JMSException je1) {
                 if (!ShutdownHook.shuttingDown) {
                     System.err.println("|---JMS ERROR---|");
@@ -66,6 +64,7 @@ public class ArtemisConsumerApplication implements CommandLineRunner {
     }
 
     private Session getSession() throws JMSException {
+        final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616", "artemis", "artemis");
         final Connection connection = connectionFactory.createConnection();
         final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
         connection.start();
@@ -81,9 +80,9 @@ public class ArtemisConsumerApplication implements CommandLineRunner {
 
         @PreDestroy
         public void destroy() throws JMSException {
-            connection.close();
+            System.out.println("shutting down...");
             shuttingDown = true;
-            System.out.println("shutting down system...");
+            connection.close();
         }
     }
 }

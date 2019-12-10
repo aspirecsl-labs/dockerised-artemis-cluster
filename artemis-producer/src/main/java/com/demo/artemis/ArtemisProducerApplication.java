@@ -32,12 +32,10 @@ public class ArtemisProducerApplication implements CommandLineRunner {
     private Session session;
     private final Queue queue;
     private MessageProducer producer;
-    private final ConnectionFactory connectionFactory;
 
     public ArtemisProducerApplication() throws JMSException {
         id = UUID.randomUUID().toString();
         queue = ActiveMQJMSClient.createQueue("example");
-        connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616", "artemis", "artemis");
         session = getSession();
         producer = session.createProducer(queue);
     }
@@ -48,7 +46,7 @@ public class ArtemisProducerApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        while (true) {
+        while (!ShutdownHook.shuttingDown) {
             try {
                 final int groupId = ThreadLocalRandom.current().nextInt(5);
                 final TextMessage message =
@@ -56,7 +54,7 @@ public class ArtemisProducerApplication implements CommandLineRunner {
                 message.setStringProperty("JMSXGroupID", "Group-" + groupId);
                 producer.send(message);
                 System.out.println("Sent message: " + message.getText());
-                TimeUnit.MILLISECONDS.sleep(100);
+                TimeUnit.MILLISECONDS.sleep(500);
             } catch (JMSException jmsEx) {
                 if (!ShutdownHook.shuttingDown) {
                     System.err.println("|---JMS ERROR---|");
@@ -76,6 +74,7 @@ public class ArtemisProducerApplication implements CommandLineRunner {
     }
 
     private Session getSession() throws JMSException {
+        final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616", "artemis", "artemis");
         final Connection connection = connectionFactory.createConnection();
         final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
         connection.start();
@@ -91,9 +90,9 @@ public class ArtemisProducerApplication implements CommandLineRunner {
 
         @PreDestroy
         public void destroy() throws JMSException {
-            connection.close();
+            System.out.println("shutting down...");
             shuttingDown = true;
-            System.out.println("shutting down system...");
+            connection.close();
         }
     }
 }
