@@ -38,13 +38,13 @@ under the License.
          -->
         <journal-type>ASYNCIO</journal-type>
 
-        <paging-directory>/var/artemis/paging</paging-directory>
+        <paging-directory>/var/artemis/{HOST}/paging</paging-directory>
 
-        <journal-directory>/var/artemis/journal</journal-directory>
+        <journal-directory>/var/artemis/{HOST}/journal</journal-directory>
 
-        <bindings-directory>/var/artemis/bindings</bindings-directory>
+        <bindings-directory>/var/artemis/{HOST}/bindings</bindings-directory>
 
-        <large-messages-directory>/var/artemis/large-messages</large-messages-directory>
+        <large-messages-directory>/var/artemis/{HOST}/large-messages</large-messages-directory>
 
         <journal-datasync>true</journal-datasync>
 
