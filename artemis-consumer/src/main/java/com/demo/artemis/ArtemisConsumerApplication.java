@@ -67,7 +67,7 @@ public class ArtemisConsumerApplication implements CommandLineRunner {
     }
 
     private Session getSession() throws JMSException {
-        final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616", "artemis", "artemis");
+        final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://messenger:61616", "artemis", "artemis");
         final Connection connection = connectionFactory.createConnection();
         final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
         connection.start();

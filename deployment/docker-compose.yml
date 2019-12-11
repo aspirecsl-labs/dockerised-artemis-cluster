@@ -22,4 +22,43 @@ services:
           memory: 512M
         reservations:
           memory: 128M
-
+#
+#
+  producer:
+    image: localhost:5000/artemis-producer:1.0-SNAPSHOT
+    environment:
+      - _JAVA_OPTIONS=-Dhttp.nonProxyHosts=localhost
+    ports:
+      - 7080:8080
+    deploy:
+      replicas: 3
+      update_config:
+        failure_action: continue
+        order: start-first
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
+    depends_on:
+      - "messenger"
+#
+#
+  consumer:
+    image: localhost:5000/artemis-consumer:1.0-SNAPSHOT
+    environment:
+      - _JAVA_OPTIONS=-Dhttp.nonProxyHosts=localhost
+    ports:
+      - 9080:8080
+    deploy:
+      replicas: 3
+      update_config:
+        failure_action: continue
+        order: start-first
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
+    depends_on:
+      - "messenger"

@@ -55,7 +55,7 @@ public class ArtemisProducerApplication implements CommandLineRunner {
                 final int groupId = ThreadLocalRandom.current().nextInt(5);
                 final TextMessage message =
                         session.createTextMessage(format("sender: %s | group: %s | index: %s", id, groupId, idx++));
-                message.setStringProperty("JMSXGroupID", "Group-" + groupId);
+                message.setStringProperty("JMSXGroupID", "" + groupId);
                 producer.send(message);
                 System.out.println(message.getText());
                 TimeUnit.MILLISECONDS.sleep(500);
@@ -78,7 +78,7 @@ public class ArtemisProducerApplication implements CommandLineRunner {
     }
 
     private Session getSession() throws JMSException {
-        final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616", "artemis", "artemis");
+        final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://messenger:61616", "artemis", "artemis");
         final Connection connection = connectionFactory.createConnection();
         final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
         connection.start();

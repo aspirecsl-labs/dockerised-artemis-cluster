@@ -26,8 +26,8 @@ RUN groupadd -g 1000 -r artemis && \
     ############################################################
     ###          N/W debug tools for DEV phase ONLY          ###
     #----------------------------------------------------------#
-    # apt-get install -y --no-install-recommends \
-    # telnet net-tools iputils-ping inetutils-traceroute && \
+    #apt-get install -y --no-install-recommends telnet \
+    #dnsutils net-tools iputils-ping inetutils-traceroute && \
     ############################################################
     apt-get install -y --no-install-recommends libaio1 wget && \
     wget --output-document=/tmp/artemis.tgz $ARTEMIS_DOWNLOAD_LINK && \
@@ -65,3 +65,4 @@ EXPOSE \
 USER artemis
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["run"]
+HEALTHCHECK --interval=10s --timeout=8s --start-period=120s --retries=3 CMD wget --quiet --spider http://localhost:8161 || exit 1
