@@ -38,13 +38,13 @@ under the License.
          -->
         <journal-type>ASYNCIO</journal-type>
 
-        <paging-directory>data/paging</paging-directory>
+        <paging-directory>/var/artemis/paging</paging-directory>
 
-        <bindings-directory>data/bindings</bindings-directory>
+        <journal-directory>/var/artemis/journal</journal-directory>
 
-        <journal-directory>data/journal</journal-directory>
+        <bindings-directory>/var/artemis/bindings</bindings-directory>
 
-        <large-messages-directory>data/large-messages</large-messages-directory>
+        <large-messages-directory>/var/artemis/large-messages</large-messages-directory>
 
         <journal-datasync>true</journal-datasync>
 
@@ -153,6 +153,9 @@ under the License.
         </security-settings>
 
         <!-- Clustering configuration -->
+        <!-- default values are enough for testing -->
+        <!-- for more fine grained control refer to the Clusters section in the Artemis
+             documentation at: http://activemq.apache.org/components/artemis/documentation/ -->
         <broadcast-groups>
             <broadcast-group name="my-broadcast-group">
                 <broadcast-period>5000</broadcast-period>
@@ -162,6 +165,9 @@ under the License.
             </broadcast-group>
         </broadcast-groups>
 
+        <!-- default values are enough for testing -->
+        <!-- for more fine grained control refer to the Clusters section in the Artemis
+             documentation at: http://activemq.apache.org/components/artemis/documentation/ -->
         <discovery-groups>
             <discovery-group name="my-discovery-group">
                 <jgroups-file>jgroups-file_ping.xml</jgroups-file>
@@ -170,13 +176,15 @@ under the License.
             </discovery-group>
         </discovery-groups>
 
+        <!-- default values are enough for testing -->
+        <!-- for more fine grained control refer to the Clusters section in the Artemis
+             documentation at: http://activemq.apache.org/components/artemis/documentation/ -->
         <cluster-connections>
             <cluster-connection name="my-cluster">
                 <connector-ref>netty-connector</connector-ref>
                 <retry-interval>500</retry-interval>
                 <use-duplicate-detection>true</use-duplicate-detection>
-                <message-load-balancing>STRICT</message-load-balancing>
-                <max-hops>1</max-hops>
+                <message-load-balancing>ON_DEMAND</message-load-balancing>
                 <discovery-group-ref discovery-group-name="my-discovery-group"/>
             </cluster-connection>
         </cluster-connections>
@@ -191,7 +199,9 @@ under the License.
 
         <address-settings>
             <address-setting match="#">
-                <redistribution-delay>1000</redistribution-delay>
+                <!-- set a value > 0 in milliseconds to preserve messages on the node for a while
+                     so that a consumer that quickly reconnects to this node retains access to them -->
+                <redistribution-delay>0</redistribution-delay>
             </address-setting>
         </address-settings>
 

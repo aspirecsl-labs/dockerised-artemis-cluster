@@ -34,7 +34,7 @@ public class ArtemisProducerApplication implements CommandLineRunner {
     private MessageProducer producer;
 
     public ArtemisProducerApplication() throws JMSException {
-        id = UUID.randomUUID().toString();
+        id = UUID.randomUUID().toString().split("-")[0];
         queue = ActiveMQJMSClient.createQueue("example");
         session = getSession();
         producer = session.createProducer(queue);
@@ -46,14 +46,18 @@ public class ArtemisProducerApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        long idx = 1L;
         while (!ShutdownHook.shuttingDown) {
+            if (idx == Long.MAX_VALUE) {
+                idx = 1;
+            }
             try {
                 final int groupId = ThreadLocalRandom.current().nextInt(5);
                 final TextMessage message =
-                        session.createTextMessage(format("[%s] - group [%s] timestamp: [%s]", id, groupId, now()));
+                        session.createTextMessage(format("sender: %s | group: %s | index: %s", id, groupId, idx++));
                 message.setStringProperty("JMSXGroupID", "Group-" + groupId);
                 producer.send(message);
-                System.out.println("Sent message: " + message.getText());
+                System.out.println(message.getText());
                 TimeUnit.MILLISECONDS.sleep(500);
             } catch (JMSException jmsEx) {
                 if (!ShutdownHook.shuttingDown) {

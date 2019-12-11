@@ -1,5 +1,6 @@
 package com.demo.artemis;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PreDestroy;
@@ -23,10 +24,12 @@ import org.springframework.stereotype.Component;
 @SpringBootApplication
 public class ArtemisConsumerApplication implements CommandLineRunner {
 
+    private final String id;
     private final Queue queue;
     private MessageConsumer consumer;
 
     public ArtemisConsumerApplication() throws JMSException {
+        id = UUID.randomUUID().toString().split("-")[0];
         queue = ActiveMQJMSClient.createQueue("example");
         final Session session = getSession();
         consumer = session.createConsumer(queue);
@@ -42,7 +45,7 @@ public class ArtemisConsumerApplication implements CommandLineRunner {
             try {
                 final TextMessage message = (TextMessage) consumer.receive(5000);
                 if (message != null) {
-                    System.out.println("Received message: " + message.getText());
+                    System.out.println(String.format("[receiver: %s | %s]", id, message.getText()));
                     message.acknowledge();
                 }
                 TimeUnit.MILLISECONDS.sleep(500);

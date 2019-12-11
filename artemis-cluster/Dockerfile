@@ -6,9 +6,9 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ######################################
 ###     Set proxy if necessary     ###
 #------------------------------------#
-# ENV http_proxy http://proxy:port/
-# ENV https_proxy http://proxy:port/
-# ENV no_proxy="127.0.0.1, localhost"
+#ENV http_proxy http://proxy:port/
+#ENV https_proxy http://proxy:port/
+#ENV no_proxy="127.0.0.1, localhost"
 ######################################
 
 ENV SHA512_VAL=9e7ad63fad2e2bcfc727d68a49df82fb71820dc785c04f737836c9f831a9a2aa85d4f7b4469e2c27373da0c0b6b1a58b3adee033813e5e9787badac1b0ceade7
