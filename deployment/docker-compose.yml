@@ -1,19 +1,15 @@
 version: "3.5"
 services:
-  messenger:
-    image: localhost:5000/artemis-cluster:1.0-SNAPSHOT
-    environment: 
+  hermes_ena:
+    image: localhost:5000/hermes:1.0-SNAPSHOT
+    environment:
       - _JAVA_OPTIONS=-Dhttp.nonProxyHosts=localhost
+    networks:
+      - mount-olympus
     volumes:
-      - /var/artemis/data:/var/artemis
+      - /var/artemis/hermes_ena:/var/artemis
       - /var/artemis/jgroups:/var/jgroups
-    ports:
-      # Web Server
-      - 58161:8161
-      # Messages
-      - 61616:61616
     deploy:
-      replicas: 3
       update_config:
         failure_action: continue
         order: start-first
@@ -22,12 +18,73 @@ services:
           memory: 512M
         reservations:
           memory: 128M
-#
-#
-  producer:
-    image: localhost:5000/artemis-producer:1.0-SNAPSHOT
+  #
+  #
+  hermes_duo:
+    image: localhost:5000/hermes:1.0-SNAPSHOT
     environment:
       - _JAVA_OPTIONS=-Dhttp.nonProxyHosts=localhost
+    networks:
+      - mount-olympus
+    volumes:
+      - /var/artemis/hermes_duo:/var/artemis
+      - /var/artemis/jgroups:/var/jgroups
+    deploy:
+      update_config:
+        failure_action: continue
+        order: start-first
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
+  #
+  #
+  hermes_tria:
+    image: localhost:5000/hermes:1.0-SNAPSHOT
+    environment:
+      - _JAVA_OPTIONS=-Dhttp.nonProxyHosts=localhost
+    networks:
+      - mount-olympus
+    volumes:
+      - /var/artemis/hermes_tria:/var/artemis
+      - /var/artemis/jgroups:/var/jgroups
+    deploy:
+      update_config:
+        failure_action: continue
+        order: start-first
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
+  #
+  #
+  themis:
+    image: localhost:5000/themis:1.0-SNAPSHOT
+    networks:
+      - mount-olympus
+    ports:
+      - 8080:8080
+      - 8161:8161
+      - 61616:61616
+    deploy:
+      update_config:
+        failure_action: continue
+        order: start-first
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
+  #
+  #
+  producer:
+    image: localhost:5000/producer:1.0-SNAPSHOT
+    environment:
+      - _JAVA_OPTIONS=-Dhttp.nonProxyHosts=localhost
+    networks:
+      - mount-olympus
     ports:
       - 7080:8080
     deploy:
@@ -42,12 +99,14 @@ services:
           memory: 128M
     depends_on:
       - "messenger"
-#
-#
+  #
+  #
   consumer:
-    image: localhost:5000/artemis-consumer:1.0-SNAPSHOT
+    image: localhost:5000/consumer:1.0-SNAPSHOT
     environment:
       - _JAVA_OPTIONS=-Dhttp.nonProxyHosts=localhost
+    networks:
+      - mount-olympus
     ports:
       - 9080:8080
     deploy:
@@ -62,3 +121,9 @@ services:
           memory: 128M
     depends_on:
       - "messenger"
+#
+#
+networks:
+  mount-olympus:
+    driver: overlay
+    attachable: true
