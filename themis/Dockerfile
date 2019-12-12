@@ -6,9 +6,9 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ######################################
 ###     Set proxy if necessary     ###
 #------------------------------------#
-ENV http_proxy http://85.115.54.201:80/
-ENV https_proxy http://85.115.54.201:80/
-ENV no_proxy="127.0.0.1, localhost"
+#ENV http_proxy http://proxy:port/
+#ENV https_proxy http://proxy:port/
+#ENV no_proxy="127.0.0.1, localhost"
 ######################################
 
 COPY haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg
